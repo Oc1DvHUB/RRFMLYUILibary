@@ -1,6 +1,6 @@
---[[ Oc1DvHUB v33 FINAL - Living BG + Credit + Server Utils + Custom Noob ]]
+--[[ Oc1DvHUB v33 - Notif + AntiAFK AllGame + FPS Boost ]]
 
-print("[Oc1DvHUB] v33 FINAL start")
+print("[Oc1DvHUB] v33 start")
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -11,8 +11,6 @@ local Stats = game:GetService("Stats")
 local MPS = game:GetService("MarketplaceService")
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
 local LP = Players.LocalPlayer
 
 print("[Oc1DvHUB] services loaded")
@@ -33,8 +31,7 @@ local IC = {
     Rumah="rbxassetid://10734950020", Farm="rbxassetid://10734942198",
     Admin="rbxassetid://10734950309", Visual="rbxassetid://10747373176",
     Live="rbxassetid://10734950020", Tema="rbxassetid://10734961809",
-    Misc="rbxassetid://10734961809", Credit="rbxassetid://10734950309",
-    Settings="rbxassetid://10734950309",
+    Misc="rbxassetid://10734961809", Settings="rbxassetid://10734950309",
 }
 
 local C = {
@@ -60,7 +57,7 @@ local S = {
     Fly=false, FlySpeed=50, Noclip=false, InfJump=false,
     WalkSpeed=16, JumpPower=50,
     ESP=false, ESPName=false, ESPDist=false, SelectedPlayer=nil,
-    AntiAfk=false, FpsBoost=false, InfYield=false,
+    AntiAfk=false, FpsBoost=false,
     BGBrightness=0.55,
     StartTime=os.time(), GameName="Loading...",
     curBG=1, selBG=1, HueColor=C.Pri,
@@ -115,6 +112,7 @@ local function sfx()
     end)
 end
 
+-- ═══════ NOTIFICATION SYSTEM (bottom-right stack) ═══════
 local NotifyContainer = Instance.new("Frame")
 NotifyContainer.Name = "NotifyContainer"
 NotifyContainer.Size = UDim2.new(0, 260, 0, 400)
@@ -200,11 +198,13 @@ local function NotifyUser(title, msg, tp)
     msgL.TextTruncate = Enum.TextTruncate.AtEnd
     msgL.ZIndex = 501
 
+    -- Slide-in animation
     card.Position = UDim2.new(0, 300, 0, 0)
     TS:Create(card, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Position = UDim2.new(0, 0, 0, 0),
     }):Play()
 
+    -- Auto dismiss
     task.delay(3.5, function()
         pcall(function()
             TS:Create(card, TweenInfo.new(0.3), {
@@ -357,132 +357,6 @@ mst.Transparency = 0.35
 mst.Parent = Main
 track(mst, "Color")
 
--- LIVING BACKGROUND EFFECTS
-local effectsLayer = Instance.new("Frame", Main)
-effectsLayer.Name = "EffectsLayer"
-effectsLayer.Size = UDim2.new(1,0,1,0)
-effectsLayer.BackgroundTransparency = 1
-effectsLayer.ClipsDescendants = true
-effectsLayer.ZIndex = 2
-Instance.new("UICorner", effectsLayer).CornerRadius = UDim.new(0,16)
-
-local gradLayer = Instance.new("Frame", effectsLayer)
-gradLayer.Size = UDim2.new(1,0,1,0)
-gradLayer.BackgroundColor3 = Color3.fromRGB(255,255,255)
-gradLayer.BackgroundTransparency = 0.78
-gradLayer.BorderSizePixel = 0
-gradLayer.ZIndex = 3
-Instance.new("UICorner", gradLayer).CornerRadius = UDim.new(0,16)
-
-local gradBg = Instance.new("UIGradient", gradLayer)
-gradBg.Rotation = 45
-gradBg.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 140, 70)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 200, 120)),
-    ColorSequenceKeypoint.new(1.0, Color3.fromRGB(255, 100, 50)),
-})
-gradBg.Transparency = NumberSequence.new({
-    NumberSequenceKeypoint.new(0, 0.85),
-    NumberSequenceKeypoint.new(0.5, 0.5),
-    NumberSequenceKeypoint.new(1, 0.85),
-})
-
-task.spawn(function()
-    while gradLayer.Parent do
-        for i = 0, 1, 0.015 do
-            if not gradLayer.Parent then break end
-            gradBg.Rotation = 45 + i * 360
-            task.wait(0.03)
-        end
-    end
-end)
-
-local bgOrbs = {}
-for i = 1, 6 do
-    local orb = Instance.new("ImageLabel", effectsLayer)
-    local sz = math.random(60, 140)
-    orb.Size = UDim2.new(0, sz, 0, sz)
-    orb.Position = UDim2.new(math.random(), 0, math.random(), 0)
-    orb.BackgroundTransparency = 1
-    orb.Image = "rbxassetid://5028857084"
-    orb.ImageColor3 = Color3.fromRGB(255, 130, 60)
-    orb.ImageTransparency = math.random(70, 90) / 100
-    orb.ZIndex = 4
-    table.insert(bgOrbs, {obj = orb, phase = math.random() * math.pi * 2})
-end
-
-task.spawn(function()
-    while effectsLayer.Parent do
-        local t = os.clock()
-        for _, o in ipairs(bgOrbs) do
-            if o.obj and o.obj.Parent then
-                local x = 0.5 + math.sin(t * 0.3 + o.phase) * 0.4
-                local y = 0.5 + math.cos(t * 0.25 + o.phase) * 0.4
-                o.obj.Position = UDim2.new(x, 0, y, 0)
-                o.obj.ImageTransparency = 0.75 + math.sin(t + o.phase) * 0.15
-            end
-        end
-        task.wait(0.03)
-    end
-end)
-
-local grainBg = Instance.new("ImageLabel", effectsLayer)
-grainBg.Size = UDim2.new(1,0,1,0)
-grainBg.BackgroundTransparency = 1
-grainBg.Image = "rbxassetid://5028857084"
-grainBg.ImageColor3 = Color3.fromRGB(255, 255, 255)
-grainBg.ImageTransparency = 0.95
-grainBg.ScaleType = Enum.ScaleType.Tile
-grainBg.TileSize = UDim2.new(0, 100, 0, 100)
-grainBg.ZIndex = 5
-Instance.new("UICorner", grainBg).CornerRadius = UDim.new(0,16)
-
-task.spawn(function()
-    while grainBg.Parent do
-        local t = os.clock()
-        grainBg.ImageTransparency = 0.92 + math.sin(t * 4) * 0.03
-        task.wait(0.05)
-    end
-end)
-
-local shimmerBg = Instance.new("ImageLabel", effectsLayer)
-shimmerBg.Size = UDim2.new(0.4, 0, 1, 0)
-shimmerBg.BackgroundTransparency = 1
-shimmerBg.Image = "rbxassetid://5028857084"
-shimmerBg.ImageColor3 = Color3.fromRGB(255, 220, 180)
-shimmerBg.ImageTransparency = 0.85
-shimmerBg.ZIndex = 6
-shimmerBg.Rotation = 20
-
-task.spawn(function()
-    while shimmerBg.Parent do
-        shimmerBg.Position = UDim2.new(-0.4, 0, -0.1, 0)
-        local tw = TS:Create(shimmerBg, TweenInfo.new(3, Enum.EasingStyle.Linear), {
-            Position = UDim2.new(1.2, 0, -0.1, 0),
-        })
-        tw:Play()
-        tw.Completed:Wait()
-        task.wait(2 + math.random() * 3)
-    end
-end)
-
-local pulseStroke = Instance.new("UIStroke", Main)
-pulseStroke.Color = C.Pri
-pulseStroke.Thickness = 1.5
-pulseStroke.Transparency = 0.5
-pulseStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-pulseStroke.Parent = Main
-track(pulseStroke, "Color")
-
-task.spawn(function()
-    while Main.Parent do
-        local t = os.clock()
-        pulseStroke.Transparency = 0.5 + math.sin(t * 2) * 0.25
-        pulseStroke.Thickness = 1.5 + math.sin(t * 2) * 0.5
-        task.wait(0.05)
-    end
-end)
-
 local TH_H = 36
 local Title = Instance.new("Frame", Main)
 Title.Size = UDim2.new(1,0,0,TH_H)
@@ -606,6 +480,7 @@ FB.MouseButton1Click:Connect(doShow)
 
 print("[Oc1DvHUB] title built")
 
+-- LAYOUT
 local SX, SY = 8, TH_H + 8
 local SW = 96
 local UH = 44
@@ -770,8 +645,7 @@ local tabData = {
     {name="Rumah", icon=IC.Rumah}, {name="Farm", icon=IC.Farm},
     {name="Admin", icon=IC.Admin}, {name="Visual", icon=IC.Visual},
     {name="Live", icon=IC.Live}, {name="Tema", icon=IC.Tema},
-    {name="Misc", icon=IC.Misc}, {name="Credit", icon=IC.Credit},
-    {name="Settings", icon=IC.Settings},
+    {name="Misc", icon=IC.Misc}, {name="Settings", icon=IC.Settings},
 }
 
 local tabContent = {}
@@ -931,6 +805,7 @@ SearchInput:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
+-- COMPONENTS
 local function Toggle(parent, title, desc, def, cb)
     local c = Instance.new("Frame", parent)
     c.Size = UDim2.new(1,-4,0,38)
@@ -1328,6 +1203,7 @@ end
 
 print("[Oc1DvHUB] components defined")
 
+-- FEATURE FUNCS
 local function gH()
     local c = LP.Character
     return c and c:FindFirstChild("HumanoidRootPart")
@@ -1347,12 +1223,14 @@ local function ft(p)
     end)
 end
 
+-- ═══════ ANTI AFK (works all games) ═══════
 local antiAfkConn = nil
 local antiAfkHeartbeat = nil
 local lastAntiAfkKick = 0
 
 local function startAntiAfk()
     if antiAfkConn then return end
+    -- Metode 1: Idled event (official)
     antiAfkConn = LP.Idled:Connect(function()
         if not S.AntiAfk then return end
         local vu = game:GetService("VirtualUser")
@@ -1360,6 +1238,7 @@ local function startAntiAfk()
         vu:ClickButton2(Vector2.new(0,0))
         Log("Anti AFK: Idle prevented", "success")
     end)
+    -- Metode 2: Heartbeat auto-activity (untuk game yg gak pakai idle)
     antiAfkHeartbeat = RunService.Heartbeat:Connect(function()
         if not S.AntiAfk then return end
         local now = os.clock()
@@ -1378,11 +1257,13 @@ local function stopAntiAfk()
     if antiAfkHeartbeat then antiAfkHeartbeat:Disconnect(); antiAfkHeartbeat = nil end
 end
 
+-- ═══════ FPS BOOST ═══════
 local fpsBoostBackup = {}
 local fpsBoostConn = nil
 local fpsOriginalLighting = {}
 
 local function enableFpsBoost()
+    -- Backup lighting
     fpsOriginalLighting.GlobalShadows = Lighting.GlobalShadows
     fpsOriginalLighting.FogEnd = Lighting.FogEnd
     fpsOriginalLighting.Brightness = Lighting.Brightness
@@ -1395,6 +1276,7 @@ local function enableFpsBoost()
     Lighting.EnvironmentDiffuseScale = 0
     Lighting.EnvironmentSpecularScale = 0
 
+    -- Disable post effects
     for _, v in ipairs(Lighting:GetChildren()) do
         if v:IsA("PostEffect") or v:IsA("Atmosphere") or v:IsA("BloomEffect")
            or v:IsA("BlurEffect") or v:IsA("ColorCorrectionEffect")
@@ -1404,6 +1286,7 @@ local function enableFpsBoost()
         end
     end
 
+    -- Remove particles & trails
     task.spawn(function()
         for _, d in ipairs(workspace:GetDescendants()) do
             if d:IsA("ParticleEmitter") or d:IsA("Trail") or d:IsA("Smoke")
@@ -1416,6 +1299,7 @@ local function enableFpsBoost()
         end
     end)
 
+    -- Set quality to lowest
     pcall(function()
         settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
     end)
@@ -1423,6 +1307,7 @@ local function enableFpsBoost()
         settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
     end)
 
+    -- Continuous cleanup untuk partikel baru
     fpsBoostConn = workspace.DescendantAdded:Connect(function(d)
         if not S.FpsBoost then return end
         if d:IsA("ParticleEmitter") or d:IsA("Trail") or d:IsA("Smoke")
@@ -1435,6 +1320,7 @@ local function enableFpsBoost()
 end
 
 local function disableFpsBoost()
+    -- Restore lighting
     if fpsOriginalLighting.GlobalShadows ~= nil then
         Lighting.GlobalShadows = fpsOriginalLighting.GlobalShadows
         Lighting.FogEnd = fpsOriginalLighting.FogEnd
@@ -1442,105 +1328,21 @@ local function disableFpsBoost()
         Lighting.EnvironmentDiffuseScale = fpsOriginalLighting.EnvironmentDiffuseScale
         Lighting.EnvironmentSpecularScale = fpsOriginalLighting.EnvironmentSpecularScale
     end
+    -- Restore post effects
     for obj, state in pairs(fpsBoostBackup) do
         if obj and obj.Parent then
             pcall(function() obj.Enabled = state end)
         end
     end
     fpsBoostBackup = {}
+    -- Restore quality
     pcall(function()
         settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
     end)
     if fpsBoostConn then fpsBoostConn:Disconnect(); fpsBoostConn = nil end
 end
 
--- SERVER UTILS
-local function getServerList(minPlayers, maxPlayers)
-    local ok, result = pcall(function()
-        return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"))
-    end)
-    if not ok or not result or not result.data then return {} end
-    local list = {}
-    for _, s in ipairs(result.data) do
-        if s.playing < s.maxPlayers and s.id ~= game.JobId then
-            if (minPlayers == nil or s.playing >= minPlayers)
-               and (maxPlayers == nil or s.playing <= maxPlayers) then
-                table.insert(list, s)
-            end
-        end
-    end
-    return list
-end
-
-local function serverHop()
-    task.spawn(function()
-        Log("Mencari server baru...", "info")
-        NotifyUser("Server Hop", "Mencari server...", "info")
-        local list = getServerList()
-        if #list == 0 then
-            Log("Ga ada server lain", "error")
-            NotifyUser("Server Hop", "Ga ada server lain", "error")
-            return
-        end
-        local target = list[math.random(1, #list)]
-        Log("Hop ke server: " .. target.id, "success")
-        NotifyUser("Server Hop", "Pindah server...", "success")
-        task.wait(0.5)
-        TeleportService:TeleportToPlaceInstance(game.PlaceId, target.id, LP)
-    end)
-end
-
-local function smallServer()
-    task.spawn(function()
-        Log("Mencari server sepi...", "info")
-        NotifyUser("Small Server", "Mencari server sepi...", "info")
-        local list = getServerList(nil, 5)
-        if #list == 0 then
-            list = getServerList()
-            if #list == 0 then
-                Log("Ga ada server lain", "error")
-                return
-            end
-        end
-        table.sort(list, function(a, b) return a.playing < b.playing end)
-        local target = list[1]
-        Log("Hop: " .. target.playing .. " player", "success")
-        NotifyUser("Small Server", target.playing .. " player", "success")
-        task.wait(0.5)
-        TeleportService:TeleportToPlaceInstance(game.PlaceId, target.id, LP)
-    end)
-end
-
--- INFINITY YIELD
-local infYieldActive = false
-local infYieldLoop = nil
-
-local function startInfYield()
-    if infYieldActive then return end
-    infYieldActive = true
-    Log("Infinity Yield ON", "success")
-    NotifyUser("Infinity Yield", "Anti kick aktif", "success")
-    infYieldLoop = task.spawn(function()
-        while infYieldActive do
-            task.wait(1)
-            pcall(function()
-                local vu = game:GetService("VirtualUser")
-                if vu then
-                    vu:CaptureController()
-                    vu:ClickButton2(Vector2.new(0,0))
-                end
-            end)
-        end
-    end)
-end
-
-local function stopInfYield()
-    infYieldActive = false
-    if infYieldLoop then task.cancel(infYieldLoop); infYieldLoop = nil end
-    NotifyUser("Infinity Yield", "Dimatikan", "warn")
-end
-
--- COIN SCANNER
+-- ═══════ COIN SCANNER + AUTO COLLECT ═══════
 local COIN_IMPORTANT_ID = "58a10e23-44a5-4f08-bd34-18ab6200c606"
 local COIN_KEYWORDS = {"coin","koin","crypto","token","cash","money","gem","diamond","gold"}
 local BLOCKED_KEYWORDS = {"interact","prompt","billboard","gui","dialog","button","click","shop","sign","arrow"}
@@ -1981,7 +1783,7 @@ end
 
 print("[Oc1DvHUB] features defined")
 
--- RUMAH TAB
+-- FILL TABS
 local welcomeCard = Instance.new("Frame", tabContent.Rumah)
 welcomeCard.Size = UDim2.new(1,-4,0,70)
 welcomeCard.BackgroundColor3 = C.Card
@@ -2169,7 +1971,7 @@ task.spawn(function()
     end
 end)
 
--- FARM TAB
+-- Farm
 Sect(tabContent.Farm, "AUTO COLLECT COIN")
 Toggle(tabContent.Farm, "Auto Collect Coin", "Scan map + auto collect", false, function(v)
     S.AutoCoin = v
@@ -2273,7 +2075,7 @@ Toggle(tabContent.Farm, "Rarity Log", "Log rarity ke Live tab", true, function(v
 Btn(tabContent.Farm, "Test Rarity BIG", function() RarityPopup("TestBigCoin", true); Log("Test rarity BIG", "rarity") end)
 Btn(tabContent.Farm, "Test Rarity SMALL", function() RarityPopup("TestSmallCoin", false); Log("Test rarity SMALL", "rarity") end)
 
--- ADMIN TAB
+-- ═══════ ADMIN TAB - Tambah AntiAFK + FPS Boost ═══════
 Sect(tabContent.Admin, "UTILITY (All Game)")
 Toggle(tabContent.Admin, "Anti AFK", "Anti kick idle (all game)", false, function(v)
     S.AntiAfk = v
@@ -2361,9 +2163,9 @@ Btn(tabContent.Admin, "Heal Self", function()
     if h then h.Health = h.MaxHealth end
 end)
 
--- VISUAL TAB
+-- Visual
 local SPAWNED_NOOBS = {}
-local MAX_NOOB = 50
+local MAX_NOOB = 6
 local NPC_CFG = {WalkSpeed = 16, WanderRange = 50, WanderDelay = 3}
 
 local function createNoobRig(position)
@@ -2443,7 +2245,7 @@ local function startNoobAI(npc)
 end
 
 local function spawnNoob(ox, oz)
-    if #SPAWNED_NOOBS >= MAX_NOOB then return end
+    if #SPAWNED_NOOBS >= MAX_NOOB then Log("Max noob", "warn"); return end
     local hrp = gH(); if not hrp then return end
     local pos = hrp.Position + hrp.CFrame.LookVector * 10 + Vector3.new(ox or 0, 3, oz or 0)
     local ok, npc = pcall(function() return createNoobRig(pos) end)
@@ -2451,6 +2253,7 @@ local function spawnNoob(ox, oz)
         npc.Parent = workspace
         table.insert(SPAWNED_NOOBS, npc)
         startNoobAI(npc)
+        Log("Noob (" .. #SPAWNED_NOOBS .. "/" .. MAX_NOOB .. ")", "success")
     end
 end
 
@@ -2462,133 +2265,17 @@ local function clearNoobs()
     Log("Noobs cleared", "warn")
 end
 
-Sect(tabContent.Visual, "NOOB NPC SPAWNER")
-
-local noobInputFrame = Instance.new("Frame", tabContent.Visual)
-noobInputFrame.Size = UDim2.new(1,-4,0,38)
-noobInputFrame.BackgroundColor3 = C.Card
-noobInputFrame.BackgroundTransparency = 0.25
-noobInputFrame.BorderSizePixel = 0
-noobInputFrame.ZIndex = 10
-Instance.new("UICorner", noobInputFrame).CornerRadius = UDim.new(0,10)
-local nifS = Instance.new("UIStroke", noobInputFrame)
-nifS.Color = C.Pri
-nifS.Thickness = 1
-nifS.Transparency = 0.7
-nifS.Parent = noobInputFrame
-track(nifS, "Color")
-
-local noobInputLbl = Instance.new("TextLabel", noobInputFrame)
-noobInputLbl.Size = UDim2.new(0.4, 0, 1, 0)
-noobInputLbl.Position = UDim2.new(0, 12, 0, 0)
-noobInputLbl.BackgroundTransparency = 1
-noobInputLbl.Text = "Jumlah:"
-noobInputLbl.TextColor3 = C.Txt
-noobInputLbl.TextSize = 10
-noobInputLbl.Font = Enum.Font.GothamMedium
-noobInputLbl.TextXAlignment = Enum.TextXAlignment.Left
-noobInputLbl.ZIndex = 11
-
-local noobInput = Instance.new("TextBox", noobInputFrame)
-noobInput.Size = UDim2.new(0.6, -20, 1, -8)
-noobInput.Position = UDim2.new(0.4, 6, 0, 4)
-noobInput.BackgroundColor3 = Color3.fromRGB(60,60,68)
-noobInput.BackgroundTransparency = 0.1
-noobInput.BorderSizePixel = 0
-noobInput.Text = "6"
-noobInput.PlaceholderText = "Ketik angka..."
-noobInput.PlaceholderColor3 = C.Dim
-noobInput.TextColor3 = C.Pri
-noobInput.TextSize = 10
-noobInput.Font = Enum.Font.GothamBold
-noobInput.ClearTextOnFocus = false
-noobInput.ZIndex = 12
-Instance.new("UICorner", noobInput).CornerRadius = UDim.new(0,8)
-
-local noobBtnRow = Instance.new("Frame", tabContent.Visual)
-noobBtnRow.Size = UDim2.new(1,-4,0,30)
-noobBtnRow.BackgroundTransparency = 1
-noobBtnRow.ZIndex = 10
-local nbRowLay = Instance.new("UIListLayout", noobBtnRow)
-nbRowLay.FillDirection = Enum.FillDirection.Horizontal
-nbRowLay.Padding = UDim.new(0,5)
-nbRowLay.SortOrder = Enum.SortOrder.LayoutOrder
-
-local function mkMiniBtn(txt, cb, col)
-    local b = Instance.new("TextButton", noobBtnRow)
-    b.Size = UDim2.new(0.33, -4, 1, 0)
-    b.BackgroundColor3 = col or C.Card
-    b.BackgroundTransparency = 0.2
-    b.BorderSizePixel = 0
-    b.Text = txt
-    b.TextColor3 = Color3.fromRGB(255,255,255)
-    b.TextSize = 10
-    b.Font = Enum.Font.GothamBold
-    b.AutoButtonColor = false
-    b.ZIndex = 11
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0,8)
-    b.MouseButton1Click:Connect(function()
-        sfx()
-        if cb then pcall(cb) end
-    end)
-    return b
-end
-
-mkMiniBtn("-1", function()
-    local n = tonumber(noobInput.Text) or 6
-    noobInput.Text = tostring(math.max(1, n - 1))
-end, Color3.fromRGB(120, 60, 60))
-
-mkMiniBtn("+1", function()
-    local n = tonumber(noobInput.Text) or 6
-    noobInput.Text = tostring(math.min(50, n + 1))
-end, Color3.fromRGB(60, 120, 90))
-
-mkMiniBtn("MAX", function()
-    noobInput.Text = "50"
-end, Color3.fromRGB(80, 80, 130))
-
-Sect(tabContent.Visual, "AKSI")
-
-local spawnNoobBtn = Instance.new("TextButton", tabContent.Visual)
-spawnNoobBtn.Size = UDim2.new(1,-4,0,32)
-spawnNoobBtn.BackgroundColor3 = C.Pri
-spawnNoobBtn.BackgroundTransparency = 0.1
-spawnNoobBtn.BorderSizePixel = 0
-spawnNoobBtn.Text = "SPAWN NOOB"
-spawnNoobBtn.TextColor3 = Color3.fromRGB(255,255,255)
-spawnNoobBtn.TextSize = 11
-spawnNoobBtn.Font = Enum.Font.GothamBlack
-spawnNoobBtn.AutoButtonColor = false
-spawnNoobBtn.ZIndex = 11
-Instance.new("UICorner", spawnNoobBtn).CornerRadius = UDim.new(0,10)
-track(spawnNoobBtn, "BackgroundColor3")
-
-spawnNoobBtn.MouseButton1Click:Connect(function()
-    sfx()
-    local n = tonumber(noobInput.Text) or 6
-    n = math.clamp(math.floor(n), 1, 50)
-    if #SPAWNED_NOOBS >= 50 then
-        NotifyUser("Spawn Noob", "Max 50, clear dulu", "warn")
-        return
-    end
-    local sisa = 50 - #SPAWNED_NOOBS
-    if n > sisa then
-        NotifyUser("Spawn Noob", "Max bisa " .. sisa .. " lagi", "warn")
-        n = sisa
-    end
-    Log("Spawning " .. n .. " noob...", "info")
-    for i = 1, n do
-        spawnNoob(math.random(-20,20), math.random(-20,20))
+Sect(tabContent.Visual, "NOOB NPC")
+Btn(tabContent.Visual, "Spawn 1 Noob", function() spawnNoob(0, 0) end)
+Btn(tabContent.Visual, "Spawn 6 Noobs", function()
+    for i = 1, MAX_NOOB do
+        spawnNoob(math.random(-15,15), math.random(-15,15))
         task.wait(0.15)
     end
-    Log("Selesai spawn " .. n .. " noob", "success")
-    NotifyUser("Spawn Noob", n .. " spawned", "success")
 end)
-
 Btn(tabContent.Visual, "Clear All Noobs", function() clearNoobs() end, Color3.fromRGB(150, 60, 70))
 
--- TEMA TAB
+-- Tema
 Sect(tabContent.Tema, "BACKGROUND IMAGE")
 local themeBtns = {}
 for i, bg in ipairs(BG_LIST) do
@@ -2701,315 +2388,16 @@ Slider(tabContent.Tema, "Kegelapan BG (x100)", 0, 80, math.floor(S.BGBrightness*
     ovl.BackgroundTransparency = S.BGBrightness
 end)
 
--- MISC TAB
-Sect(tabContent.Misc, "SERVER")
+-- Misc
+Sect(tabContent.Misc, "UTILITY")
+Btn(tabContent.Misc, "Copy Discord", function()
+    if setclipboard then setclipboard("discord.gg/oc1dv") end
+end)
 Btn(tabContent.Misc, "Rejoin Server", function()
-    NotifyUser("Rejoin", "Rejoining...", "info")
-    task.wait(0.3)
-    TeleportService:Teleport(game.PlaceId, LP)
-end, Color3.fromRGB(60, 120, 90))
-
-Btn(tabContent.Misc, "Server Hop", function()
-    serverHop()
-end, Color3.fromRGB(80, 100, 140))
-
-Btn(tabContent.Misc, "Small Server (max 5p)", function()
-    smallServer()
-end, Color3.fromRGB(120, 80, 140))
-
-Sect(tabContent.Misc, "SCRIPT UTILITY")
-Toggle(tabContent.Misc, "Infinity Yield", "Anti kick long task", false, function(v)
-    if v then startInfYield() else stopInfYield() end
+    game:GetService("TeleportService"):Teleport(game.PlaceId, LP)
 end)
 
-Sect(tabContent.Misc, "SHORTCUTS")
-Btn(tabContent.Misc, "Copy Discord Invite", function()
-    if setclipboard then
-        setclipboard("https://discord.gg/wtVKkDvyz")
-        Log("Discord link copied", "success")
-        NotifyUser("Copy Discord", "Link tersalin", "success")
-    else
-        NotifyUser("Copy Discord", "Clipboard ga support", "error")
-    end
-end)
-
--- CREDIT TAB
-local creditCard = Instance.new("Frame", tabContent.Credit)
-creditCard.Size = UDim2.new(1,-4,0,140)
-creditCard.BackgroundColor3 = C.Card
-creditCard.BackgroundTransparency = 0.25
-creditCard.BorderSizePixel = 0
-creditCard.ZIndex = 10
-Instance.new("UICorner", creditCard).CornerRadius = UDim.new(0,12)
-local ccS = Instance.new("UIStroke", creditCard)
-ccS.Color = C.Pri
-ccS.Thickness = 1
-ccS.Transparency = 0.7
-ccS.Parent = creditCard
-track(ccS, "Color")
-
-local creditLogo = Instance.new("ImageLabel", creditCard)
-creditLogo.Size = UDim2.new(0, 60, 0, 60)
-creditLogo.Position = UDim2.new(0.5, -30, 0, 12)
-creditLogo.BackgroundTransparency = 1
-creditLogo.Image = LOGO
-creditLogo.ZIndex = 12
-
-local creditTitle = Instance.new("TextLabel", creditCard)
-creditTitle.Size = UDim2.new(1, -20, 0, 22)
-creditTitle.Position = UDim2.new(0, 10, 0, 76)
-creditTitle.BackgroundTransparency = 1
-creditTitle.RichText = true
-creditTitle.Text = '<font color="rgb(255,140,70)">Oc1Dv</font><font color="rgb(240,240,245)">HUB</font>'
-creditTitle.TextSize = 16
-creditTitle.Font = Enum.Font.GothamBlack
-creditTitle.TextXAlignment = Enum.TextXAlignment.Center
-creditTitle.ZIndex = 12
-
-local creditSub = Instance.new("TextLabel", creditCard)
-creditSub.Size = UDim2.new(1, -20, 0, 16)
-creditSub.Position = UDim2.new(0, 10, 0, 100)
-creditSub.BackgroundTransparency = 1
-creditSub.Text = "v33 FINAL - Public Release"
-creditSub.TextColor3 = C.Dim
-creditSub.TextSize = 10
-creditSub.Font = Enum.Font.GothamMedium
-creditSub.TextXAlignment = Enum.TextXAlignment.Center
-creditSub.ZIndex = 12
-
-local creditMade = Instance.new("TextLabel", creditCard)
-creditMade.Size = UDim2.new(1, -20, 0, 14)
-creditMade.Position = UDim2.new(0, 10, 0, 118)
-creditMade.BackgroundTransparency = 1
-creditMade.Text = "Developed with passion for the community"
-creditMade.TextColor3 = C.Dim
-creditMade.TextSize = 9
-creditMade.Font = Enum.Font.Gotham
-creditMade.TextXAlignment = Enum.TextXAlignment.Center
-creditMade.ZIndex = 12
-
-Sect(tabContent.Credit, "DEVELOPER")
-local devCard = Instance.new("Frame", tabContent.Credit)
-devCard.Size = UDim2.new(1,-4,0,60)
-devCard.BackgroundColor3 = C.Card
-devCard.BackgroundTransparency = 0.25
-devCard.BorderSizePixel = 0
-devCard.ZIndex = 10
-Instance.new("UICorner", devCard).CornerRadius = UDim.new(0,12)
-
-local devIcon = Instance.new("Frame", devCard)
-devIcon.Size = UDim2.new(0, 40, 0, 40)
-devIcon.Position = UDim2.new(0, 10, 0.5, -20)
-devIcon.BackgroundColor3 = C.Pri
-devIcon.BackgroundTransparency = 0.15
-devIcon.BorderSizePixel = 0
-devIcon.ZIndex = 11
-Instance.new("UICorner", devIcon).CornerRadius = UDim.new(0,10)
-track(devIcon, "BackgroundColor3")
-
-local devIconLbl = Instance.new("TextLabel", devIcon)
-devIconLbl.Size = UDim2.new(1,0,1,0)
-devIconLbl.BackgroundTransparency = 1
-devIconLbl.Text = "D"
-devIconLbl.TextColor3 = Color3.fromRGB(255,255,255)
-devIconLbl.TextSize = 18
-devIconLbl.Font = Enum.Font.GothamBlack
-devIconLbl.ZIndex = 12
-
-local devName = Instance.new("TextLabel", devCard)
-devName.Size = UDim2.new(1, -70, 0, 16)
-devName.Position = UDim2.new(0, 58, 0, 12)
-devName.BackgroundTransparency = 1
-devName.Text = "Oc1DvHUB"
-devName.TextColor3 = C.Txt
-devName.TextSize = 12
-devName.Font = Enum.Font.GothamBold
-devName.TextXAlignment = Enum.TextXAlignment.Left
-devName.ZIndex = 11
-
-local devRole = Instance.new("TextLabel", devCard)
-devRole.Size = UDim2.new(1, -70, 0, 14)
-devRole.Position = UDim2.new(0, 58, 0, 30)
-devRole.BackgroundTransparency = 1
-devRole.Text = "Lead Developer - UI Designer"
-devRole.TextColor3 = C.Dim
-devRole.TextSize = 9
-devRole.Font = Enum.Font.Gotham
-devRole.TextXAlignment = Enum.TextXAlignment.Left
-devRole.ZIndex = 11
-
-Sect(tabContent.Credit, "DISCORD")
-local dcCard = Instance.new("Frame", tabContent.Credit)
-dcCard.Size = UDim2.new(1,-4,0,50)
-dcCard.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-dcCard.BackgroundTransparency = 0.15
-dcCard.BorderSizePixel = 0
-dcCard.ZIndex = 10
-Instance.new("UICorner", dcCard).CornerRadius = UDim.new(0,12)
-
-local dcIcon = Instance.new("TextLabel", dcCard)
-dcIcon.Size = UDim2.new(0, 40, 1, 0)
-dcIcon.Position = UDim2.new(0, 10, 0, 0)
-dcIcon.BackgroundTransparency = 1
-dcIcon.Text = "DC"
-dcIcon.TextColor3 = Color3.fromRGB(255,255,255)
-dcIcon.TextSize = 14
-dcIcon.Font = Enum.Font.GothamBlack
-dcIcon.ZIndex = 11
-
-local dcInfoTitle = Instance.new("TextLabel", dcCard)
-dcInfoTitle.Size = UDim2.new(1, -110, 0, 16)
-dcInfoTitle.Position = UDim2.new(0, 54, 0, 8)
-dcInfoTitle.BackgroundTransparency = 1
-dcInfoTitle.Text = "Join Discord Server"
-dcInfoTitle.TextColor3 = Color3.fromRGB(255,255,255)
-dcInfoTitle.TextSize = 11
-dcInfoTitle.Font = Enum.Font.GothamBold
-dcInfoTitle.TextXAlignment = Enum.TextXAlignment.Left
-dcInfoTitle.ZIndex = 11
-
-local dcInfoSub = Instance.new("TextLabel", dcCard)
-dcInfoSub.Size = UDim2.new(1, -110, 0, 14)
-dcInfoSub.Position = UDim2.new(0, 54, 0, 26)
-dcInfoSub.BackgroundTransparency = 1
-dcInfoSub.Text = "discord.gg/wtVKkDvyz"
-dcInfoSub.TextColor3 = Color3.fromRGB(220,220,255)
-dcInfoSub.TextSize = 9
-dcInfoSub.Font = Enum.Font.GothamMedium
-dcInfoSub.TextXAlignment = Enum.TextXAlignment.Left
-dcInfoSub.ZIndex = 11
-
-local dcCopyBtn = Instance.new("TextButton", dcCard)
-dcCopyBtn.Size = UDim2.new(0, 50, 0, 26)
-dcCopyBtn.Position = UDim2.new(1, -58, 0.5, -13)
-dcCopyBtn.BackgroundColor3 = Color3.fromRGB(255,255,255)
-dcCopyBtn.BackgroundTransparency = 0.15
-dcCopyBtn.BorderSizePixel = 0
-dcCopyBtn.Text = "COPY"
-dcCopyBtn.TextColor3 = Color3.fromRGB(88, 101, 242)
-dcCopyBtn.TextSize = 9
-dcCopyBtn.Font = Enum.Font.GothamBold
-dcCopyBtn.AutoButtonColor = false
-dcCopyBtn.ZIndex = 12
-Instance.new("UICorner", dcCopyBtn).CornerRadius = UDim.new(0,8)
-dcCopyBtn.MouseButton1Click:Connect(function()
-    sfx()
-    if setclipboard then
-        setclipboard("https://discord.gg/wtVKkDvyz")
-        NotifyUser("Copy Discord", "Link tersalin", "success")
-    else
-        NotifyUser("Copy Discord", "Clipboard ga support", "error")
-    end
-end)
-
-Sect(tabContent.Credit, "TENTANG RRFMLY UI")
-local aboutCard = Instance.new("Frame", tabContent.Credit)
-aboutCard.Size = UDim2.new(1,-4,0,120)
-aboutCard.BackgroundColor3 = C.Card
-aboutCard.BackgroundTransparency = 0.25
-aboutCard.BorderSizePixel = 0
-aboutCard.ZIndex = 10
-Instance.new("UICorner", aboutCard).CornerRadius = UDim.new(0,12)
-
-local aboutTitle = Instance.new("TextLabel", aboutCard)
-aboutTitle.Size = UDim2.new(1, -20, 0, 16)
-aboutTitle.Position = UDim2.new(0, 10, 0, 8)
-aboutTitle.BackgroundTransparency = 1
-aboutTitle.Text = "RRFMLY UI"
-aboutTitle.TextColor3 = C.Pri
-aboutTitle.TextSize = 11
-aboutTitle.Font = Enum.Font.GothamBold
-aboutTitle.TextXAlignment = Enum.TextXAlignment.Left
-aboutTitle.ZIndex = 11
-track(aboutTitle, "TextColor3")
-
-local aboutVer = Instance.new("TextLabel", aboutCard)
-aboutVer.Size = UDim2.new(1, -20, 0, 14)
-aboutVer.Position = UDim2.new(0, 10, 0, 26)
-aboutVer.BackgroundTransparency = 1
-aboutVer.Text = "Version: v33 FINAL"
-aboutVer.TextColor3 = C.Txt
-aboutVer.TextSize = 9
-aboutVer.Font = Enum.Font.GothamMedium
-aboutVer.TextXAlignment = Enum.TextXAlignment.Left
-aboutVer.ZIndex = 11
-
-local aboutBody = Instance.new("TextLabel", aboutCard)
-aboutBody.Size = UDim2.new(1, -20, 1, -48)
-aboutBody.Position = UDim2.new(0, 10, 0, 42)
-aboutBody.BackgroundTransparency = 1
-aboutBody.Text = "RRFMLY UI adalah framework UI modern gaya iOS soft, dilengkapi sistem tema, living background effects, dan modular component."
-aboutBody.TextColor3 = C.Dim
-aboutBody.TextSize = 9
-aboutBody.Font = Enum.Font.Gotham
-aboutBody.TextXAlignment = Enum.TextXAlignment.Left
-aboutBody.TextYAlignment = Enum.TextYAlignment.Top
-aboutBody.TextWrapped = true
-aboutBody.ZIndex = 11
-
-Sect(tabContent.Credit, "CHANGELOG")
-local changelogCard = Instance.new("Frame", tabContent.Credit)
-changelogCard.Size = UDim2.new(1,-4,0,90)
-changelogCard.BackgroundColor3 = C.Card
-changelogCard.BackgroundTransparency = 0.25
-changelogCard.BorderSizePixel = 0
-changelogCard.ZIndex = 10
-Instance.new("UICorner", changelogCard).CornerRadius = UDim.new(0,12)
-
-local cl1 = Instance.new("TextLabel", changelogCard)
-cl1.Size = UDim2.new(1, -20, 0, 16)
-cl1.Position = UDim2.new(0, 10, 0, 8)
-cl1.BackgroundTransparency = 1
-cl1.Text = "v33 FINAL - Living BG + Credit + Server Utils"
-cl1.TextColor3 = C.Pri
-cl1.TextSize = 9
-cl1.Font = Enum.Font.GothamBold
-cl1.TextXAlignment = Enum.TextXAlignment.Left
-cl1.ZIndex = 11
-
-local cl2 = Instance.new("TextLabel", changelogCard)
-cl2.Size = UDim2.new(1, -20, 0, 16)
-cl2.Position = UDim2.new(0, 10, 0, 26)
-cl2.BackgroundTransparency = 1
-cl2.Text = "v33 - Notif + AntiAFK + FPS Boost"
-cl2.TextColor3 = C.Dim
-cl2.TextSize = 9
-cl2.Font = Enum.Font.Gotham
-cl2.TextXAlignment = Enum.TextXAlignment.Left
-cl2.ZIndex = 11
-
-local cl3 = Instance.new("TextLabel", changelogCard)
-cl3.Size = UDim2.new(1, -20, 0, 16)
-cl3.Position = UDim2.new(0, 10, 0, 44)
-cl3.BackgroundTransparency = 1
-cl3.Text = "v32 - Coin Scanner + TP/Walk mode"
-cl3.TextColor3 = C.Dim
-cl3.TextSize = 9
-cl3.Font = Enum.Font.Gotham
-cl3.TextXAlignment = Enum.TextXAlignment.Left
-cl3.ZIndex = 11
-
-local footerCard = Instance.new("Frame", tabContent.Credit)
-footerCard.Size = UDim2.new(1,-4,0,44)
-footerCard.BackgroundColor3 = C.Card
-footerCard.BackgroundTransparency = 0.4
-footerCard.BorderSizePixel = 0
-footerCard.ZIndex = 10
-Instance.new("UICorner", footerCard).CornerRadius = UDim.new(0,12)
-
-local footerTxt = Instance.new("TextLabel", footerCard)
-footerTxt.Size = UDim2.new(1, -20, 1, 0)
-footerTxt.Position = UDim2.new(0, 10, 0, 0)
-footerTxt.BackgroundTransparency = 1
-footerTxt.Text = "Made by Oc1DvHUB - (c) 2026"
-footerTxt.TextColor3 = C.Dim
-footerTxt.TextSize = 9
-footerTxt.Font = Enum.Font.GothamMedium
-footerTxt.TextXAlignment = Enum.TextXAlignment.Center
-footerTxt.TextYAlignment = Enum.TextYAlignment.Center
-footerTxt.ZIndex = 11
-
--- SETTINGS TAB
+-- Settings
 Sect(tabContent.Settings, "RESET")
 Btn(tabContent.Settings, "Disable All", function()
     S.Fly = false; stopFly()
@@ -3019,13 +2407,12 @@ Btn(tabContent.Settings, "Disable All", function()
     S.AutoCoin = false; stopCoin()
     S.AntiAfk = false; stopAntiAfk()
     S.FpsBoost = false; disableFpsBoost()
-    stopInfYield()
     clearNoobs()
     aWS(16); aJP(50)
     Log("All disabled", "warn")
 end)
 Btn(tabContent.Settings, "Unload UI", function()
-    stopFly(); clrESP(); stopCoin(); stopAntiAfk(); disableFpsBoost(); stopInfYield(); clearNoobs()
+    stopFly(); clrESP(); stopCoin(); stopAntiAfk(); disableFpsBoost(); clearNoobs()
     task.wait(0.3)
     SG:Destroy()
 end, Color3.fromRGB(150, 60, 70))
@@ -3037,6 +2424,6 @@ UIS.InputBegan:Connect(function(i, g)
     end
 end)
 
-Log("v33 FINAL ready", "success")
-NotifyUser("Oc1DvHUB", "v33 FINAL loaded", "success")
-print("[Oc1DvHUB] v33 FINAL loaded OK")
+Log("v33 ready", "success")
+NotifyUser("Oc1DvHUB", "v33 loaded successfully", "success")
+print("[Oc1DvHUB] v33 loaded OK")
