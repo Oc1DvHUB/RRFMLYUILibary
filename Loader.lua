@@ -1,7 +1,8 @@
---[[ Oc1DvHUB - FINAL (No Lock)
+--[[ Oc1DvHUB - FINAL (No Logo in Title)
      - Mini UI + 3 dot buttons
      - Tab: Rumah, Fake Purchase, Live, Tema, Misc, Credit
-     - Fake Purchase langsung kebuka, tanpa izin/kode
+     - Fake Purchase langsung kebuka
+     - Tanpa logo di title bar
 ]]
 
 print("[Oc1DvHUB] Loading FINAL...")
@@ -372,16 +373,9 @@ Title.Active = true
 Instance.new("UICorner", Title).CornerRadius = UDim.new(0,16)
 track(Title, "BackgroundColor3")
 
-local logoImg = Instance.new("ImageLabel", Title)
-logoImg.Size = UDim2.new(0,22,0,22)
-logoImg.Position = UDim2.new(0,12,0.5,-11)
-logoImg.BackgroundTransparency = 1
-logoImg.Image = CONFIG.LOGO
-logoImg.ZIndex = 21
-
 local Ttl = Instance.new("TextLabel", Title)
-Ttl.Size = UDim2.new(1,-120,1,0)
-Ttl.Position = UDim2.new(0,42,0,0)
+Ttl.Size = UDim2.new(1,-100,1,0)
+Ttl.Position = UDim2.new(0,14,0,0)
 Ttl.BackgroundTransparency = 1
 Ttl.RichText = true
 Ttl.Text = '<font color="rgb(240,240,245)">Oc1Dv</font><font color="rgb(255,145,80)">HUB</font>'
